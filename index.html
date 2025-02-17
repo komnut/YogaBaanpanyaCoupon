@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Cards</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            text-align: center;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        .print-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 ใบต่อแถว */
+            grid-template-rows: repeat(5, 1fr); /* 5 แถวต่อหน้า */
+            gap: 0;
+            width: 21cm;
+            height: 29.7cm;
+            padding: 0;
+            page-break-after: always;
+        }
+
+        .card {
+            width: 10.5cm;
+            height: 5.94cm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            position: relative;
+            background-color: white;
+            overflow: hidden;
+            border: 1px solid black;
+        }
+
+        /* ✅ ทำให้พื้นหลังโปร่งแสง */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('bg.jpg'); /* ใช้ไฟล์พื้นหลัง */
+            background-size: cover;
+            background-position: center;
+            opacity: 1; /* ✅ ปรับความโปร่งแสงของพื้นหลัง */
+            z-index: 0;
+        }
+
+		/* ✅ ปรับสไตล์ตัวหนังสือ */
+		.content {
+			position: absolute;
+			z-index: 1;
+			text-align: center; /* จัดให้อยู่กึ่งกลาง */
+			font-size: 16px;
+			font-weight: bold;
+			color: black;
+			width: 100%;
+			height: 100%;
+		}
+
+		/* ✅ ปรับตำแหน่งชื่อ */
+		.content name {
+			font-size: 20px;
+			display: block; /* ทำให้เป็นบล็อกเพื่อให้ขยับง่าย */
+			margin-top: 46px;
+			margin-left: 256px;
+			text-align: left;
+		}
+
+		/* ✅ ปรับตำแหน่งวันหมดอายุ */
+		.content expiry {
+			font-size: 14px;
+			display: block;
+			margin-top: 1px;
+			margin-left: 256px;
+			text-align: left;
+		}
+
+		/* ✅ ปรับตำแหน่งเลขลำดับ */
+		.content seq {
+			font-size: 24px;
+			display: block;
+			margin-top: 35px;
+			margin-left: 340px;
+			text-align: center;
+			color: red;
+		}
+
+        /* ✅ ปรับให้พื้นหลังแสดงตอนพิมพ์ */
+        @media print {
+            body {
+                visibility: hidden;
+            }
+            .print-area {
+                visibility: visible;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .card {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .card::before {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Print Cards Generator</h2>
+
+    <div class="form-container">
+        <label for="name">ชื่อ:</label>
+        <input type="text" id="name" required>
+        
+        <label for="expiry">วันหมดอายุ:</label>
+        <input type="date" id="expiry" required>
+
+        <label for="count">จำนวนการ์ด:</label>
+        <input type="number" id="count" min="1" required>
+
+        <button onclick="generateCards()">Generate Cards</button>
+        <button onclick="printCards()">Print</button>
+    </div>
+
+    <div class="print-area" id="printArea"></div>
+
+    <script>
+        function generateCards() {
+            let name = document.getElementById("name").value;
+            let expiry = document.getElementById("expiry").value;
+            let count = parseInt(document.getElementById("count").value);
+
+            if (!name || !expiry || count < 1) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน!");
+                return;
+            }
+
+            let container = document.getElementById("printArea");
+            container.innerHTML = "";
+
+            let page;
+            
+            for (let i = 1; i <= count; i++) {
+                if ((i - 1) % 10 === 0) {
+                    page = document.createElement("div");
+                    page.className = "card-container";
+                    container.appendChild(page);
+                }
+
+                let card = document.createElement("div");
+                card.className = "card";
+
+                let content = document.createElement("div");
+                content.className = "content";
+                content.innerHTML = `
+                    <name>${name}</name><br>
+                    <expiry>${expiry}</expiry><br>
+                    <seq>${i}</seq>
+                `;
+
+                card.appendChild(content);
+
+                page.appendChild(card);
+            }
+        }
+
+        function printCards() {
+            window.print();
+        }
+    </script>
+
+</body>
+</html>
