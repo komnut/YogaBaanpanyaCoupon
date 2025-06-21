@@ -187,9 +187,9 @@
           </div> -->
         </div>
 
-        <button class="btn btn-primary" onclick="generateCards()">
+        <!-- <button class="btn btn-primary" onclick="generateCards()">
           Generate Cards
-        </button>
+        </button> -->
         <button class="btn btn-success" onclick="printCards()">Print</button>
       </div>
     </div>
@@ -198,6 +198,7 @@
 
     <script>
       function printCards() {
+        generateCards();
         window.print();
       }
       function generateCards() {
