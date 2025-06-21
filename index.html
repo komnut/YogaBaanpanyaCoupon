@@ -201,6 +201,7 @@
         generateCards();
         window.print();
       }
+
       function generateCards() {
         let name = document.getElementById("name").value;
         let expiry = document.getElementById("expiry").value;
@@ -247,43 +248,28 @@
             <expiry>${formattedDate}</expiry><br>
             <seq>${i}</seq>
           `;
-
-        // // ✅ แปลงวันที่จาก "YYYY-MM-DD" เป็น "dd/MM/yyyy (พ.ศ.)"
-        // let expiryDate = new Date(expiry);
-        // let day = expiryDate.getDate();
-        // let month = expiryDate.getMonth() + 1; // เดือนใน JS เริ่มจาก 0
-        // let year = expiryDate.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
-        // let formattedDate = `${day.toString().padStart(2, "0")}/${month
-        //   .toString()
-        //   .padStart(2, "0")}/${year}`;
-
-        // let container = document.getElementById("printArea");
-        // container.innerHTML = "";
-
-        // let page;
-
-        // for (let i = 1; i <= count; i++) {
-        //   if ((i - 1) % 10 === 0) {
-        //     page = document.createElement("div");
-        //     page.className = "card-container";
-        //     container.appendChild(page);
-        //   }
-
-        //   let card = document.createElement("div");
-        //   card.className = "card";
-
-        //   let content = document.createElement("div");
-        //   content.className = "content";
-        //   content.innerHTML = `
-        //     <name>${name}</name><br>
-        //     <expiry>${formattedDate}</expiry><br>
-        //     <seq>${i}</seq>
-        // `;
-
+          
           card.appendChild(content);
           page.appendChild(card);
         }
       }
+
+
+
+      // เพิ่มส่วนนี้เข้าไป
+      function clearPrintArea() {
+        document.getElementById("printArea").innerHTML = "";
+      }
+
+      if ('onafterprint' in window) {
+        window.onafterprint = clearPrintArea;
+      } else {
+        window.matchMedia('print').addEventListener('change', function(e) {
+          if (!e.matches) clearPrintArea();
+        });
+      }
+
+
     </script>
   </body>
 </html>
