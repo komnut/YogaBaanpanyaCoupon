@@ -165,7 +165,7 @@
           </div>
         </div>
 
-        <div class="mb-12 row" style="padding-bottom: 20px">
+        <!-- <div class="mb-12 row" style="padding-bottom: 20px">
           <label for="count" class="col-sm-2 col-form-label">จำนวนการ์ด:</label>
           <div class="col-sm-5">
             <input
@@ -184,7 +184,7 @@
               min="1"
               required
             />
-          </div>
+          </div> -->
         </div>
 
         <button class="btn btn-primary" onclick="generateCards()">
@@ -203,8 +203,10 @@
       function generateCards() {
         let name = document.getElementById("name").value;
         let expiry = document.getElementById("expiry").value;
-        let count_from = parseInt(document.getElementById("count_from").value);
-        let count_to = parseInt(document.getElementById("count_to").value);
+        // let count_from = parseInt(document.getElementById("count_from").value);
+        // let count_to = parseInt(document.getElementById("count_to").value);
+        let count_from = 1;
+        let count_to = 10;
 
         if (!name || !expiry || isNaN(count_from) || isNaN(count_to) || count_from < 1 || count_to < count_from) {
           alert("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง!");
