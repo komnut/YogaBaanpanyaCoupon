@@ -46,7 +46,7 @@
       }
 
       .card {
-        width: 10.5cm;
+        width: 14cm;
         height: 5.94cm;
         display: flex;
         flex-direction: column;
@@ -68,7 +68,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("bg.jpg"); /* ใช้ไฟล์พื้นหลัง */
+        background-image: url("bg_20250621.jpg"); /* ใช้ไฟล์พื้นหลัง */
         background-size: cover;
         background-position: center;
         opacity: 1; /* ✅ ปรับความโปร่งแสงของพื้นหลัง */
@@ -91,8 +91,8 @@
       .content name {
         font-size: 25px;
         display: block; /* ทำให้เป็นบล็อกเพื่อให้ขยับง่าย */
-        margin-top: 67px;
-        margin-left: 223px;
+        margin-top: 168px;
+        margin-left: 50px;
         text-align: left;
       }
 
@@ -100,8 +100,8 @@
       .content expiry {
         font-size: 25px;
         display: block;
-        margin-top: 25px;
-        margin-left: 223px;
+        margin-top: -61px;
+        margin-left: 290px;
         text-align: left;
       }
 
@@ -109,8 +109,8 @@
       .content seq {
         font-size: 35px;
         display: block;
-        margin-top: -200px;
-        margin-left: 340px;
+        margin-top: -73px;
+        margin-left: 470px;
         text-align: center;
         color: red;
       }
@@ -167,10 +167,19 @@
 
         <div class="mb-12 row" style="padding-bottom: 20px">
           <label for="count" class="col-sm-2 col-form-label">จำนวนการ์ด:</label>
-          <div class="col-sm-10">
+          <div class="col-sm-5">
             <input
               type="number"
-              id="count"
+              id="count_from"
+              class="form-control"
+              min="1"
+              required
+            />
+          </div>
+          <div class="col-sm-5">
+            <input
+              type="number"
+              id="count_to"
               class="form-control"
               min="1"
               required
@@ -194,18 +203,25 @@
       function generateCards() {
         let name = document.getElementById("name").value;
         let expiry = document.getElementById("expiry").value;
-        let count = parseInt(document.getElementById("count").value);
+        let count_from = parseInt(document.getElementById("count_from").value);
+        let count_to = parseInt(document.getElementById("count_to").value);
 
-        if (!name || !expiry || count < 1) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน!");
+        if (!name || !expiry || isNaN(count_from) || isNaN(count_to) || count_from < 1 || count_to < count_from) {
+          alert("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง!");
           return;
         }
 
-        // ✅ แปลงวันที่จาก "YYYY-MM-DD" เป็น "dd/MM/yyyy (พ.ศ.)"
+        let cardCount = count_to - count_from + 1;
+        if (cardCount > 10) {
+          alert("จำนวนการ์ดต้องไม่เกิน 10 ใบต่อครั้ง!");
+          return;
+        }
+
+        // แปลงวันที่
         let expiryDate = new Date(expiry);
         let day = expiryDate.getDate();
-        let month = expiryDate.getMonth() + 1; // เดือนใน JS เริ่มจาก 0
-        let year = expiryDate.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+        let month = expiryDate.getMonth() + 1;
+        let year = expiryDate.getFullYear() + 543;
         let formattedDate = `${day.toString().padStart(2, "0")}/${month
           .toString()
           .padStart(2, "0")}/${year}`;
@@ -213,15 +229,11 @@
         let container = document.getElementById("printArea");
         container.innerHTML = "";
 
-        let page;
+        let page = document.createElement("div");
+        page.className = "card-container";
+        container.appendChild(page);
 
-        for (let i = 1; i <= count; i++) {
-          if ((i - 1) % 10 === 0) {
-            page = document.createElement("div");
-            page.className = "card-container";
-            container.appendChild(page);
-          }
-
+        for (let i = count_from; i <= count_to; i++) {
           let card = document.createElement("div");
           card.className = "card";
 
@@ -231,7 +243,39 @@
             <name>${name}</name><br>
             <expiry>${formattedDate}</expiry><br>
             <seq>${i}</seq>
-        `;
+          `;
+
+        // // ✅ แปลงวันที่จาก "YYYY-MM-DD" เป็น "dd/MM/yyyy (พ.ศ.)"
+        // let expiryDate = new Date(expiry);
+        // let day = expiryDate.getDate();
+        // let month = expiryDate.getMonth() + 1; // เดือนใน JS เริ่มจาก 0
+        // let year = expiryDate.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+        // let formattedDate = `${day.toString().padStart(2, "0")}/${month
+        //   .toString()
+        //   .padStart(2, "0")}/${year}`;
+
+        // let container = document.getElementById("printArea");
+        // container.innerHTML = "";
+
+        // let page;
+
+        // for (let i = 1; i <= count; i++) {
+        //   if ((i - 1) % 10 === 0) {
+        //     page = document.createElement("div");
+        //     page.className = "card-container";
+        //     container.appendChild(page);
+        //   }
+
+        //   let card = document.createElement("div");
+        //   card.className = "card";
+
+        //   let content = document.createElement("div");
+        //   content.className = "content";
+        //   content.innerHTML = `
+        //     <name>${name}</name><br>
+        //     <expiry>${formattedDate}</expiry><br>
+        //     <seq>${i}</seq>
+        // `;
 
           card.appendChild(content);
           page.appendChild(card);
