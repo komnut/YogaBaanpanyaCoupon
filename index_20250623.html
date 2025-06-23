@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Print Cards</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap 5 JS (สำหรับปุ่มและฟังก์ชันอื่นๆ) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+      body {
+        font-family: "Kanit", sans-serif;
+        text-align: center;
+      }
+
+      .form-container {
+        margin-bottom: 20px;
+      }
+
+      .print-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 ใบต่อแถว */
+        /* grid-template-rows: repeat(5, 1fr);  5 แถวต่อหน้า */
+        gap: 0px;
+        width: 21cm;
+        height: 29.7cm;
+        padding: 0;
+        page-break-after: always;
+      }
+
+      .card {
+        width: 14cm;
+        height: 5.94cm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        position: relative;
+        background-color: white;
+        overflow: hidden;
+        border: 1px solid black;
+        border-radius: 0px; /* ✅ เพิ่มมุมโค้ง */
+      }
+
+      /* ✅ ทำให้พื้นหลังโปร่งแสง */
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("bg_20250621.jpg"); /* ใช้ไฟล์พื้นหลัง */
+        background-size: cover;
+        background-position: center;
+        opacity: 1; /* ✅ ปรับความโปร่งแสงของพื้นหลัง */
+        z-index: 0;
+      }
+
+      /* ✅ ปรับสไตล์ตัวหนังสือ */
+      .content {
+        position: absolute;
+        z-index: 1;
+        text-align: center; /* จัดให้อยู่กึ่งกลาง */
+        font-size: 16px;
+        /* font-weight: bold; */
+        color: black;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ✅ ปรับตำแหน่งชื่อ */
+      .content name {
+        font-size: 20px;
+        display: block; /* ทำให้เป็นบล็อกเพื่อให้ขยับง่าย */
+        margin-top: 171px;
+        margin-left: 50px;
+        text-align: left;
+      }
+
+      /* ✅ ปรับตำแหน่งวันหมดอายุ */
+      .content expiry {
+        font-size: 20px;
+        display: block;
+        margin-top: -55px;
+        margin-left: 290px;
+        text-align: left;
+      }
+
+      /* ✅ ปรับตำแหน่งเลขลำดับ */
+      .content seq {
+        font-size: 30px;
+        display: block;
+        margin-top: -66px;
+        margin-left: 470px;
+        text-align: center;
+        color: red;
+      }
+
+      /* ✅ ปรับให้พื้นหลังแสดงตอนพิมพ์ */
+      @media print {
+        body {
+          visibility: hidden;
+        }
+        .print-area {
+          visibility: visible;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+        .card {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .card::before {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-1">
+      <h2 class="text-center mb-4">Print Cards Generator</h2>
+
+      <div class="form-container">
+        <div class="mb-12 row" style="padding-bottom: 20px">
+          <label for="name" class="col-sm-2 col-form-label">ชื่อ:</label>
+          <div class="col-sm-10">
+            <input type="text" id="name" class="form-control" required />
+          </div>
+        </div>
+
+        <div class="mb-12 row" style="padding-bottom: 20px">
+          <label for="expiry" class="col-sm-2 col-form-label"
+            >วันหมดอายุ:</label
+          >
+          <div class="col-sm-10">
+            <input
+              type="date"
+              id="expiry"
+              class="form-control"
+              onclick="this.showPicker()"
+              onkeydown="return false"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- <div class="mb-12 row" style="padding-bottom: 20px">
+          <label for="count" class="col-sm-2 col-form-label">จำนวนการ์ด:</label>
+          <div class="col-sm-5">
+            <input
+              type="number"
+              id="count_from"
+              class="form-control"
+              min="1"
+              required
+            />
+          </div>
+          <div class="col-sm-5">
+            <input
+              type="number"
+              id="count_to"
+              class="form-control"
+              min="1"
+              required
+            />
+          </div> -->
+        </div>
+
+        <!-- <button class="btn btn-primary" onclick="generateCards()">
+          Generate Cards
+        </button> -->
+        <button class="btn btn-success" onclick="printCards()">Print</button>
+      </div>
+    </div>
+
+    <div class="print-area" id="printArea"></div>
+
+    <script>
+      function printCards() {
+        generateCards();
+        window.print();
+      }
+
+      function generateCards() {
+        let name = document.getElementById("name").value;
+        let expiry = document.getElementById("expiry").value;
+        // let count_from = parseInt(document.getElementById("count_from").value);
+        // let count_to = parseInt(document.getElementById("count_to").value);
+        let count_from = 1;
+        let count_to = 10;
+
+        if (!name || !expiry || isNaN(count_from) || isNaN(count_to) || count_from < 1 || count_to < count_from) {
+          alert("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง!");
+          return;
+        }
+
+        let cardCount = count_to - count_from + 1;
+        if (cardCount > 10) {
+          alert("จำนวนการ์ดต้องไม่เกิน 10 ใบต่อครั้ง!");
+          return;
+        }
+
+        // แปลงวันที่
+        let expiryDate = new Date(expiry);
+        let day = expiryDate.getDate();
+        let month = expiryDate.getMonth() + 1;
+        let year = expiryDate.getFullYear() + 543;
+        let formattedDate = `${day.toString().padStart(2, "0")}/${month
+          .toString()
+          .padStart(2, "0")}/${year}`;
+
+        let container = document.getElementById("printArea");
+        container.innerHTML = "";
+
+        let page = document.createElement("div");
+        page.className = "card-container";
+        container.appendChild(page);
+
+        for (let i = count_from; i <= count_to; i++) {
+          let card = document.createElement("div");
+          card.className = "card";
+
+          let content = document.createElement("div");
+          content.className = "content";
+          content.innerHTML = `
+            <name>${name}</name><br>
+            <expiry>${formattedDate}</expiry><br>
+            <seq>${i}</seq>
+          `;
+          
+          card.appendChild(content);
+          page.appendChild(card);
+        }
+      }
+
+
+
+      // // เพิ่มส่วนนี้เข้าไป
+      // function clearPrintArea() {
+      //   document.getElementById("printArea").innerHTML = "";
+      // }
+
+      // if ('onafterprint' in window) {
+      //   window.onafterprint = clearPrintArea;
+      // } else {
+      //   window.matchMedia('print').addEventListener('change', function(e) {
+      //     if (!e.matches) clearPrintArea();
+      //   });
+      // }
+
+
+    </script>
+  </body>
+</html>

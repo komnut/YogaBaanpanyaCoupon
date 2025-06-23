@@ -1,275 +1,161 @@
 <!DOCTYPE html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Print Cards</title>
-
-    <link
-      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Bootstrap 5 JS (สำหรับปุ่มและฟังก์ชันอื่นๆ) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <style>
-      body {
-        font-family: "Kanit", sans-serif;
-        text-align: center;
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resize Image to Business Card Size</title>
+  <style>
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 0;
+      padding: 20px;
+    }
+    .canvas-item {
+      border: 2px solid black;
+      width: 400px;
+      height: 200px;
+    }
+    .form-section {
+      margin: 20px 0;
+    }
+    label {
+      margin-right: 10px;
+    }
+    input[type="text"], input[type="date"] {
+      margin-right: 20px;
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 5px 15px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    /* ซ่อนฟอร์มและรูปเมื่อ print */
+    @media print {
+      body > .form-section,
+      #sourceImage {
+        display: none !important;
       }
-
-      .form-container {
-        margin-bottom: 20px;
-      }
-
-      .print-area {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .card-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 ใบต่อแถว */
-        grid-template-rows: repeat(5, 1fr); /* 5 แถวต่อหน้า */
-        gap: 0px;
-        width: 21cm;
-        height: 29.7cm;
+      .canvas-grid {
         padding: 0;
-        page-break-after: always;
       }
-
-      .card {
-        width: 14cm;
-        height: 5.94cm;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-size: 14px;
-        position: relative;
-        background-color: white;
-        overflow: hidden;
-        border: 1px solid black;
-        border-radius: 0px; /* ✅ เพิ่มมุมโค้ง */
+      body {
+        margin: 0;
       }
-
-      /* ✅ ทำให้พื้นหลังโปร่งแสง */
-      .card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("bg_20250621.jpg"); /* ใช้ไฟล์พื้นหลัง */
-        background-size: cover;
-        background-position: center;
-        opacity: 1; /* ✅ ปรับความโปร่งแสงของพื้นหลัง */
-        z-index: 0;
+      .canvas-item {
+        display: block !important;
       }
-
-      /* ✅ ปรับสไตล์ตัวหนังสือ */
-      .content {
-        position: absolute;
-        z-index: 1;
-        text-align: center; /* จัดให้อยู่กึ่งกลาง */
-        font-size: 16px;
-        /* font-weight: bold; */
-        color: black;
-        width: 100%;
-        height: 100%;
+    }
+    /* ซ่อน canvas 2-10 ตอนปกติ */
+    #canvas2, #canvas3, #canvas4, #canvas5, #canvas6,
+    #canvas7, #canvas8, #canvas9, #canvas10 {
+      display: none;
+    }
+    /* แสดง canvas 2-10 ตอน print */
+    @media print {
+      #canvas2, #canvas3, #canvas4, #canvas5, #canvas6,
+      #canvas7, #canvas8, #canvas9, #canvas10 {
+        display: block !important;
       }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-section">
+    <label for="nameInput">ชื่อ:</label>
+    <input type="text" id="nameInput" placeholder="กรอกชื่อ">
 
-      /* ✅ ปรับตำแหน่งชื่อ */
-      .content name {
-        font-size: 25px;
-        display: block; /* ทำให้เป็นบล็อกเพื่อให้ขยับง่าย */
-        margin-top: 168px;
-        margin-left: 50px;
-        text-align: left;
-      }
+    <label for="dateInput">วันหมดอายุ:</label>
+    <input type="date" id="dateInput">
 
-      /* ✅ ปรับตำแหน่งวันหมดอายุ */
-      .content expiry {
-        font-size: 25px;
-        display: block;
-        margin-top: -61px;
-        margin-left: 290px;
-        text-align: left;
-      }
+    <button onclick="updateCards()">Preview</button>
+    <button onclick="printCanvases()">Print</button>
+  </div>
 
-      /* ✅ ปรับตำแหน่งเลขลำดับ */
-      .content seq {
-        font-size: 35px;
-        display: block;
-        margin-top: -73px;
-        margin-left: 470px;
-        text-align: center;
-        color: red;
-      }
+  <img id="sourceImage" src="bg_20250621.jpg" style="display:none">
 
-      /* ✅ ปรับให้พื้นหลังแสดงตอนพิมพ์ */
-      @media print {
-        body {
-          visibility: hidden;
-        }
-        .print-area {
-          visibility: visible;
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-        .card {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        .card::before {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container mt-1">
-      <h2 class="text-center mb-4">Print Cards Generator</h2>
+  <div class="canvas-grid" id="canvasGrid">
+    <canvas id="canvas1" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas2" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas3" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas4" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas5" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas6" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas7" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas8" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas9" class="canvas-item" width="400" height="200"></canvas>
+    <canvas id="canvas10" class="canvas-item" width="400" height="200"></canvas>
+  </div>
 
-      <div class="form-container">
-        <div class="mb-12 row" style="padding-bottom: 20px">
-          <label for="name" class="col-sm-2 col-form-label">ชื่อ:</label>
-          <div class="col-sm-10">
-            <input type="text" id="name" class="form-control" required />
-          </div>
-        </div>
+  <script>
+    const image = document.getElementById("sourceImage");
+    const canvasIds = [
+      'canvas1', 'canvas2', 'canvas3', 'canvas4', 'canvas5',
+      'canvas6', 'canvas7', 'canvas8', 'canvas9', 'canvas10'
+    ];
 
-        <div class="mb-12 row" style="padding-bottom: 20px">
-          <label for="expiry" class="col-sm-2 col-form-label"
-            >วันหมดอายุ:</label
-          >
-          <div class="col-sm-10">
-            <input
-              type="date"
-              id="expiry"
-              class="form-control"
-              onclick="this.showPicker()"
-              onkeydown="return false"
-              required
-            />
-          </div>
-        </div>
+    // ฟังก์ชันแปลงวันที่เป็น พ.ศ. และฟอร์แมต dd/MM/yyyy
+    function formatDateToThai(dateStr) {
+      if (!dateStr) return '01/01/2568';
+      const date = new Date(dateStr);
+      if (isNaN(date)) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear() + 543;
+      return `${day}/${month}/${year}`;
+    }
 
-        <!-- <div class="mb-12 row" style="padding-bottom: 20px">
-          <label for="count" class="col-sm-2 col-form-label">จำนวนการ์ด:</label>
-          <div class="col-sm-5">
-            <input
-              type="number"
-              id="count_from"
-              class="form-control"
-              min="1"
-              required
-            />
-          </div>
-          <div class="col-sm-5">
-            <input
-              type="number"
-              id="count_to"
-              class="form-control"
-              min="1"
-              required
-            />
-          </div> -->
-        </div>
+    // ฟังก์ชันวาดการ์ดทั้งหมด
+    function drawCards(name, expDate) {
+      canvasIds.forEach((canvasId, index) => {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext("2d");
+        // ล้าง canvas ก่อนวาดใหม่
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // วาดภาพพื้นหลัง
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        <!-- <button class="btn btn-primary" onclick="generateCards()">
-          Generate Cards
-        </button> -->
-        <button class="btn btn-success" onclick="printCards()">Print</button>
-      </div>
-    </div>
+        // ใส่ชื่อ
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText(name, 37, 174);
 
-    <div class="print-area" id="printArea"></div>
+        // ใส่วันหมดอายุ
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "black";
+        ctx.fillText(expDate, 230, 174);
 
-    <script>
-      function printCards() {
-        generateCards();
-        window.print();
-      }
+        // ใส่หมายเลข fix 1-10 ที่มุมล่างขวา
+        ctx.font = "25px Arial";
+        ctx.fillStyle = "red";
+        ctx.textAlign = "right";
+        ctx.fillText(`${index + 1}`, canvas.width - 7, canvas.height - 26);
 
-      function generateCards() {
-        let name = document.getElementById("name").value;
-        let expiry = document.getElementById("expiry").value;
-        // let count_from = parseInt(document.getElementById("count_from").value);
-        // let count_to = parseInt(document.getElementById("count_to").value);
-        let count_from = 1;
-        let count_to = 10;
+        // reset textAlign เป็น left
+        ctx.textAlign = "left";
+      });
+    }
 
-        if (!name || !expiry || isNaN(count_from) || isNaN(count_to) || count_from < 1 || count_to < count_from) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง!");
-          return;
-        }
+    // โหลดรูปเสร็จแล้ววาดการ์ดครั้งแรก
+    image.onload = () => {
+      const name = document.getElementById('nameInput').value || 'ชื่อผู้ถือบัตร';
+      const expDate = formatDateToThai(document.getElementById('dateInput').value);
+      drawCards(name, expDate);
+    };
 
-        let cardCount = count_to - count_from + 1;
-        if (cardCount > 10) {
-          alert("จำนวนการ์ดต้องไม่เกิน 10 ใบต่อครั้ง!");
-          return;
-        }
+    // ฟังก์ชันอัปเดตเมื่อกดปุ่ม Preview
+    function updateCards() {
+      const name = document.getElementById('nameInput').value || 'ชื่อผู้ถือบัตร';
+      const expDate = formatDateToThai(document.getElementById('dateInput').value);
+      drawCards(name, expDate);
+    }
 
-        // แปลงวันที่
-        let expiryDate = new Date(expiry);
-        let day = expiryDate.getDate();
-        let month = expiryDate.getMonth() + 1;
-        let year = expiryDate.getFullYear() + 543;
-        let formattedDate = `${day.toString().padStart(2, "0")}/${month
-          .toString()
-          .padStart(2, "0")}/${year}`;
-
-        let container = document.getElementById("printArea");
-        container.innerHTML = "";
-
-        let page = document.createElement("div");
-        page.className = "card-container";
-        container.appendChild(page);
-
-        for (let i = count_from; i <= count_to; i++) {
-          let card = document.createElement("div");
-          card.className = "card";
-
-          let content = document.createElement("div");
-          content.className = "content";
-          content.innerHTML = `
-            <name>${name}</name><br>
-            <expiry>${formattedDate}</expiry><br>
-            <seq>${i}</seq>
-          `;
-          
-          card.appendChild(content);
-          page.appendChild(card);
-        }
-      }
-
-
-
-      // เพิ่มส่วนนี้เข้าไป
-      function clearPrintArea() {
-        document.getElementById("printArea").innerHTML = "";
-      }
-
-      if ('onafterprint' in window) {
-        window.onafterprint = clearPrintArea;
-      } else {
-        window.matchMedia('print').addEventListener('change', function(e) {
-          if (!e.matches) clearPrintArea();
-        });
-      }
-
-
-    </script>
-  </body>
+    // ฟังก์ชัน Print เฉพาะ Canvas
+    function printCanvases() {
+      window.print();
+    }
+  </script>
+</body>
 </html>
