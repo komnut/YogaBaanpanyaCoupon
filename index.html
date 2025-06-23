@@ -142,7 +142,7 @@
     ];
 
     function formatDateToThai(dateStr) {
-      if (!dateStr) return '01/01/2568';
+      if (!dateStr) return '';
       const date = new Date(dateStr);
       if (isNaN(date)) return '';
       const day = String(date.getDate()).padStart(2, '0');
@@ -156,16 +156,16 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      ctx.font = "20px Kanit, Arial";
+      ctx.font = "18px Kanit, Arial";
       ctx.fillStyle = "black";
       ctx.fillText(name, 40, 173);
 
-      ctx.font = "20px Kanit, Arial";
+      ctx.font = "18px Kanit, Arial";
       ctx.fillStyle = "black";
       ctx.fillText(expDate, 220, 173);
 
       if (number) {
-        ctx.font = "20px Kanit, Arial";
+        ctx.font = "18px Kanit, Arial";
         ctx.fillStyle = "red";
         ctx.textAlign = "right";
         ctx.fillText(number, canvas.width - 10, 173);
@@ -190,7 +190,7 @@
     };
 
     function updateCards() {
-      const name = document.getElementById('nameInput').value || 'ชื่อผู้ถือบัตร';
+      const name = document.getElementById('nameInput').value;
       const expDate = formatDateToThai(document.getElementById('dateInput').value);
       drawPreviewCard(name, expDate);
       drawAllPrintCards(name, expDate); // เตรียมข้อมูลไว้ล่วงหน้า
